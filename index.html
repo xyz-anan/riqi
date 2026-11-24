@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f4ee">
+<title>店铺效期管家 V2.1</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="eyebrow">STORE EXPIRY MANAGER</div><h1>店铺效期管家</h1><div class="eyebrow">V2.1 · 持续提醒与分类快捷版</div><p id="todayLine">把每一批商品的日期，管理得清清楚楚。</p></header>
+<main>
+<section class="view active" id="homeView">
+ <div class="stats">
+  <div class="stat red"><b id="expiredCount">0</b><span>已过期批次</span></div>
+  <div class="stat orange"><b id="todayCount">0</b><span>今天到期</span></div>
+  <div class="stat blue"><b id="soonCount">0</b><span>3天内到期</span></div>
+  <div class="stat purple"><b id="remindCount">0</b><span>提前提醒</span></div>
+ </div>
+ <div class="quick">
+  <button class="btn primary" onclick="showView('add')"><strong>＋ 快速上货</strong><span>登记新批次</span></button>
+  <button class="btn soft" onclick="openProductModal()"><strong>＋ 新增商品</strong><span>建立商品资料</span></button>
+ </div>
+ <div class="section-head"><h2>需要留意</h2><small>按到期时间排序</small></div>
+ <div id="alerts"></div>
+ <div class="section-head"><h2>正常批次</h2><small id="normalCountLabel"></small></div>
+ <div id="normalBatches"></div>
+</section>
+<section class="view" id="addView">
+ <div class="section-head"><h2>快速上货</h2><small>每次上货建立或合并一个批次</small></div>
+ <div id="addCategoryQuick" class="category-grid" aria-label="选择上货商品分类"></div>
+ <div class="form-card">
+  <label>选择商品</label><select id="batchProduct" onchange="syncBatchForm()"><option value="">请选择商品</option></select>
+  <div id="batchFields" class="hidden">
+   <div class="row">
+    <div><label id="dateLabel">生产日期</label><input type="date" id="batchDate" onchange="previewExpiry()"></div>
+    <div><label>本次上货数量</label><input type="number" min="0" step="0.01" id="batchQty" placeholder="例如：20"></div>
+   </div>
+   <div class="note" id="batchRule"></div>
+   <div class="note" id="expiryPreview">选择日期后自动计算到期日。</div>
+   <button class="btn primary full" onclick="saveBatch()">确认上货</button>
+  </div>
+  <div id="noProducts" class="note hidden">还没有商品资料，请先新增商品并设置保质期。</div>
+ </div>
+ <div class="section-head"><h2>最近上货</h2></div><div id="recentBatches"></div>
+</section>
+<section class="view" id="batchesView">
+ <div class="section-head"><h2>商品批次</h2><small id="batchTotal"></small></div>
+ <input id="batchSearch" placeholder="搜索商品名称…" oninput="renderBatches()" style="margin-bottom:10px">
+ <div id="batchCategoryQuick" class="category-grid" aria-label="按商品分类筛选批次"></div>
+ <div class="filter" id="batchFilters">
+  <button class="active" data-filter="all" onclick="setFilter('all',this)">全部</button>
+  <button data-filter="active" onclick="setFilter('active',this)">有库存</button>
+  <button data-filter="expired" onclick="setFilter('expired',this)">已过期</button>
+  <button data-filter="zero" onclick="setFilter('zero',this)">已售罄</button>
+ </div>
+ <div id="allBatches"></div>
+</section>
+<section class="view" id="productsView">
+ <div class="section-head"><h2>商品资料库</h2><button class="btn primary small" onclick="openProductModal()">＋ 新增商品</button></div>
+ <div id="productCategoryQuick" class="category-grid" aria-label="按商品分类查看资料"></div>
+ <div class="note">首次添加商品时设置管理方式和默认保质期。以后上货会自动带出，不必重复填写。换标记录会保留原始日期和每次替换日期。系统只负责记录与计算，请先确认换标符合商品实际保质要求及相关规定，不能仅靠更换标签延长实际安全期限。</div>
+ <div class="actions" style="margin:10px 0 14px"><button class="btn small soft" onclick="exportBackup()">导出数据备份</button><button class="btn small" onclick="document.getElementById('importFile').click()">导入数据备份</button><input id="importFile" type="file" accept="application/json,.json" class="hidden" onchange="importBackup(event)"></div>
+ <div id="productList"></div>
+ <div class="section-head"><h2>历史处理记录</h2></div><div id="historyList"></div>
+</section>
+</main>
+<nav>
+ <button class="active" data-view="home" onclick="showView('home',this)"><span class="ico">⌂</span>效期首页</button>
+ <button data-view="add" onclick="showView('add',this)"><span class="ico">＋</span>快速上货</button>
+ <button data-view="batches" onclick="showView('batches',this)"><span class="ico">▦</span>批次管理</button>
+ <button data-view="products" onclick="showView('products',this)"><span class="ico">☷</span>商品资料</button>
+</nav>
+<div class="modal-back" id="modalBack" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h2 id="modalTitle">新增商品</h2><button class="close" onclick="closeModal()">×</button></div><div id="modalBody"></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="app.js" defer></script>
+</body>
+</html>
